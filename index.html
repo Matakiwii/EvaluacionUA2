@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plataforma de Experiencias de Turismo Sostenible en Aysén, Patagonia">
+    <title>Experiencias Turísticas Sostenibles - Aysén</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🌿 Aysén Sostenible</h1>
+            <p class="tagline">Turismo de bajo impacto en la Patagonia</p>
+        </div>
+    </header>
+
+    <!-- NAVEGACIÓN PRINCIPAL -->
+    <nav class="navbar">
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="#experiencias">Experiencias</a></li>
+                <li><a href="#reserva">Realizar Reserva</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main>
+        <!-- SECCIÓN DE EXPERIENCIAS -->
+        <section id="experiencias" class="experiencias-section">
+            <div class="container">
+                <h2>Nuestras Experiencias</h2>
+                <p class="section-description">Descubre las mejores experiencias de turismo sostenible en Aysén</p>
+
+                <!-- FILTROS -->
+                <div class="filtros">
+                    <button class="filtro-btn activo" data-filtro="todos">Todos</button>
+                    <button class="filtro-btn" data-filtro="navegacion">🚤 Navegación</button>
+                    <button class="filtro-btn" data-filtro="trekking">⛰️ Trekking</button>
+                    <button class="filtro-btn" data-filtro="pesca">🎣 Pesca</button>
+                    <button class="filtro-btn" data-filtro="cultura">🏛️ Cultura</button>
+                    <button class="filtro-btn" data-filtro="deportes">🏄 Deportes Acuáticos</button>
+                </div>
+
+                <!-- CONTENEDOR DE TARJETAS -->
+                <div id="tarjetas-container" class="tarjetas-grid">
+                    <!-- Las tarjetas se generarán dinámicamente aquí -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE RESERVA -->
+        <section id="reserva" class="reserva-section">
+            <div class="container">
+                <h2>Realizar una Reserva</h2>
+                
+                <div class="reserva-container">
+                    <!-- FORMULARIO DE RESERVA -->
+                    <form id="formulario-reserva" class="formulario-reserva" novalidate>
+                        
+                        <div class="form-group">
+                            <label for="nombre">Nombre Completo *</label>
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                name="nombre" 
+                                placeholder="Juan Pérez" 
+                                required
+                                aria-describedby="error-nombre"
+                            >
+                            <span id="error-nombre" class="error-message" role="alert"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                placeholder="correo@ejemplo.com" 
+                                required
+                                aria-describedby="error-email"
+                            >
+                            <span id="error-email" class="error-message" role="alert"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="experiencia">Experiencia a Reservar *</label>
+                            <select 
+                                id="experiencia" 
+                                name="experiencia" 
+                                required
+                                aria-describedby="error-experiencia"
+                            >
+                                <option value="">-- Seleccionar experiencia --</option>
+                            </select>
+                            <span id="error-experiencia" class="error-message" role="alert"></span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="personas">Número de Personas *</label>
+                                <input 
+                                    type="number" 
+                                    id="personas" 
+                                    name="personas" 
+                                    min="1" 
+                                    max="20" 
+                                    placeholder="1" 
+                                    required
+                                    aria-describedby="error-personas"
+                                >
+                                <span id="error-personas" class="error-message" role="alert"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fecha">Fecha *</label>
+                                <input 
+                                    type="date" 
+                                    id="fecha" 
+                                    name="fecha" 
+                                    required
+                                    aria-describedby="error-fecha"
+                                >
+                                <span id="error-fecha" class="error-message" role="alert"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit">Confirmar Reserva</button>
+                        <div id="mensaje-exito" class="mensaje-exito" role="alert"></div>
+                        <div id="mensaje-error-general" class="mensaje-error" role="alert"></div>
+
+                    </form>
+
+                    <!-- RESUMEN DE RESERVA -->
+                    <aside class="resumen-reserva">
+                        <h3>Resumen de tu Reserva</h3>
+                        <div id="resumen-contenido" class="resumen-contenido">
+                            <p class="placeholder-resumen">Selecciona una experiencia para ver el resumen</p>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE CONTACTO -->
+        <section id="contacto" class="contacto-section">
+            <div class="container">
+                <h2>Contacto</h2>
+                <div class="contacto-grid">
+                    <div class="contacto-item">
+                        <h3>📍 Ubicación</h3>
+                        <p>Coyhaique, Región de Aysén, Chile</p>
+                    </div>
+                    <div class="contacto-item">
+                        <h3>📧 Email</h3>
+                        <p>info@aysensostenible.cl</p>
+                    </div>
+                    <div class="contacto-item">
+                        <h3>📱 Teléfono</h3>
+                        <p>+56 9 1234 5678</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Aysén Sostenible. Promovemos el turismo de bajo impacto en la Patagonia.</p>
+            <p class="footer-note">Respetamos la naturaleza. Controlamos cupos. Preservamos el territorio.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
