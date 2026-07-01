@@ -11,7 +11,13 @@ const experiencias = [
         precio: 85000,
         cuposDisponibles: 15,
         descripcion: "Explora las impresionantes formaciones de mármol flotante en las aguas turquesas del lago General Carrera. Una experiencia única combinando naturaleza y aventura.",
-        icono: "⛩️"
+        icono: "⛩️",
+        descontarCupo(cantidad) {
+            this.cuposDisponibles = Math.max(0, this.cuposDisponibles - cantidad);
+        },
+        estaDisponible(cantidad) {
+            return cantidad > 0 && cantidad <= this.cuposDisponibles;
+        }
     },
     {
         id: 2,
@@ -21,7 +27,13 @@ const experiencias = [
         precio: 65000,
         cuposDisponibles: 20,
         descripcion: "Ascenso guiado a través de paisajes montañosos espectaculares. Vistas panorámicas de la Patagonia y senderos bien marcados para diferentes niveles.",
-        icono: "⛰️"
+        icono: "⛰️",
+        descontarCupo(cantidad) {
+            this.cuposDisponibles = Math.max(0, this.cuposDisponibles - cantidad);
+        },
+        estaDisponible(cantidad) {
+            return cantidad > 0 && cantidad <= this.cuposDisponibles;
+        }
     },
     {
         id: 3,
@@ -31,7 +43,13 @@ const experiencias = [
         precio: 120000,
         cuposDisponibles: 10,
         descripcion: "Viaje en bote hacia el espectacular glaciar San Rafael. Observa el hielo ancestral calving en la laguna de aguas azul turquesa.",
-        icono: "🏔️"
+        icono: "🏔️",
+        descontarCupo(cantidad) {
+            this.cuposDisponibles = Math.max(0, this.cuposDisponibles - cantidad);
+        },
+        estaDisponible(cantidad) {
+            return cantidad > 0 && cantidad <= this.cuposDisponibles;
+        }
     },
     {
         id: 4,
@@ -41,7 +59,13 @@ const experiencias = [
         precio: 95000,
         cuposDisponibles: 8,
         descripcion: "Experiencia de pesca deportiva con mosca en ríos prístinos de la Patagonia. Guías especializados y equipamiento incluido.",
-        icono: "🎣"
+        icono: "🎣",
+        descontarCupo(cantidad) {
+            this.cuposDisponibles = Math.max(0, this.cuposDisponibles - cantidad);
+        },
+        estaDisponible(cantidad) {
+            return cantidad > 0 && cantidad <= this.cuposDisponibles;
+        }
     },
     {
         id: 5,
@@ -51,7 +75,13 @@ const experiencias = [
         precio: 75000,
         cuposDisponibles: 12,
         descripcion: "Remar en aguas tranquilas rodeado de paisajes de fiordos patagónicos. Vida silvestre, cascadas y naturaleza virgen.",
-        icono: "🏄"
+        icono: "🏄",
+        descontarCupo(cantidad) {
+            this.cuposDisponibles = Math.max(0, this.cuposDisponibles - cantidad);
+        },
+        estaDisponible(cantidad) {
+            return cantidad > 0 && cantidad <= this.cuposDisponibles;
+        }
     },
     {
         id: 6,
@@ -61,75 +91,88 @@ const experiencias = [
         precio: 55000,
         cuposDisponibles: 25,
         descripcion: "Viaje panorámico por la legendaria Carretera Austral. Pueblos pintorescos, vistas montañosas y historia de la Patagonia.",
-        icono: "🛣️"
+        icono: "🛣️",
+        descontarCupo(cantidad) {
+            this.cuposDisponibles = Math.max(0, this.cuposDisponibles - cantidad);
+        },
+        estaDisponible(cantidad) {
+            return cantidad > 0 && cantidad <= this.cuposDisponibles;
+        }
     }
 ];
 
 /* =====================================
-   VARIABLES GLOBALES
+   UTILIDADES
    ===================================== */
 
-let filtroActual = "todos";
-let reservaSeleccionada = null;
+/**
+ * Escapa caracteres HTML para prevenir XSS
+ */
+function escaparHTML(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto;
+    return div.innerHTML;
+}
+
+/**
+ * Obtiene una experiencia por ID
+ */
+function obtenerExperiencia(id) {
+    return experiencias.find(exp => exp.id === id);
+}
+
+/**
+ * Filtra experiencias por categoría
+ */
+function filtrarExperiencias(categoria) {
+    return categoria === "todos" 
+        ? experiencias 
+        : experiencias.filter(exp => exp.categoria === categoria);
+}
 
 /* =====================================
-   FUNCIONES: RENDERIZADO Y FILTRADO
+   RENDERIZADO DEL DOM
    ===================================== */
 
 /**
  * Renderiza dinámicamente las tarjetas de experiencias
- * @param {Array} lista - Arreglo de experiencias a mostrar
  */
 function renderExperiencias(lista) {
     const container = document.getElementById("tarjetas-container");
-    
-    // Limpiar contenedor
     container.innerHTML = "";
     
-    // Si la lista está vacía
     if (lista.length === 0) {
         container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #999; padding: 2rem;">No hay experiencias disponibles en esta categoría.</p>';
         return;
     }
     
-    // Crear tarjeta por cada experiencia
-    lista.forEach(experiencia => {
-        const tarjeta = crearTarjetaExperiencia(experiencia);
-        container.appendChild(tarjeta);
-    });
+    lista.forEach(exp => container.appendChild(crearTarjeta(exp)));
 }
 
 /**
- * Crea el elemento DOM de una tarjeta de experiencia
- * @param {Object} experiencia - Objeto con datos de la experiencia
- * @returns {HTMLElement} - Elemento tarjeta
+ * Crea el elemento DOM de una tarjeta
  */
-function crearTarjetaExperiencia(experiencia) {
+function crearTarjeta(exp) {
     const tarjeta = document.createElement("article");
     tarjeta.className = "tarjeta";
+    const sinCupos = exp.cuposDisponibles <= 0;
     
-    // Verificar si hay cupos disponibles
-    const sinCupos = experiencia.cuposDisponibles <= 0;
-    
-    // Usar textContent para evitar XSS
     tarjeta.innerHTML = `
-        <div class="tarjeta-icono">${experiencia.icono}</div>
+        <div class="tarjeta-icono">${exp.icono}</div>
         <div class="tarjeta-contenido">
-            <h3 class="tarjeta-titulo">${escaparHTML(experiencia.nombre)}</h3>
-            <p class="tarjeta-metadata">
-                📍 ${escaparHTML(experiencia.lugar)}
-            </p>
-            <span class="tarjeta-categoria">${escaparHTML(experiencia.categoria)}</span>
-            <p class="tarjeta-precio">$${experiencia.precio.toLocaleString('es-CL')}</p>
+            <h3 class="tarjeta-titulo">${escaparHTML(exp.nombre)}</h3>
+            <p class="tarjeta-metadata">📍 ${escaparHTML(exp.lugar)}</p>
+            <span class="tarjeta-categoria">${escaparHTML(exp.categoria)}</span>
+            <p class="tarjeta-precio">$${exp.precio.toLocaleString('es-CL')}</p>
             <p class="tarjeta-cupos ${sinCupos ? 'sin-cupos' : ''}">
-                Cupos disponibles: <strong>${experiencia.cuposDisponibles}</strong>
+                Cupos: <strong>${exp.cuposDisponibles}</strong>
             </p>
             <div class="tarjeta-descripcion">
-                <p>${escaparHTML(experiencia.descripcion)}</p>
+                <p>${escaparHTML(exp.descripcion)}</p>
             </div>
             <div class="tarjeta-acciones">
-                <button class="btn-vermas" data-id="${experiencia.id}">Ver más</button>
-                <button class="btn-reservar" data-id="${experiencia.id}" ${sinCupos ? 'disabled' : ''}>
+                <button class="btn-vermas" data-id="${exp.id}">Ver más</button>
+                <button class="btn-reservar" data-id="${exp.id}" ${sinCupos ? 'disabled' : ''}>
                     ${sinCupos ? 'Sin cupos' : 'Reservar'}
                 </button>
             </div>
@@ -140,386 +183,214 @@ function crearTarjetaExperiencia(experiencia) {
 }
 
 /**
- * Escapa caracteres HTML para prevenir XSS
- * @param {string} texto - Texto a escapar
- * @returns {string} - Texto escapado
+ * Puebla el select de experiencias
  */
-function escaparHTML(texto) {
-    const div = document.createElement('div');
-    div.textContent = texto;
-    return div.innerHTML;
-}
-
-/**
- * Filtra experiencias por categoría
- * @param {string} categoria - Categoría a filtrar
- */
-function filtrarPorCategoria(categoria) {
-    filtroActual = categoria;
-    
-    const listaFiltrada = categoria === "todos" 
-        ? experiencias 
-        : experiencias.filter(exp => exp.categoria === categoria);
-    
-    renderExperiencias(listaFiltrada);
-    agregarEventosTarjetas();
-}
-
-/* =====================================
-   FUNCIONES: EVENTOS DE TARJETAS
-   ===================================== */
-
-/**
- * Agrega eventos a los botones de las tarjetas
- */
-function agregarEventosTarjetas() {
-    // Eventos para botones "Ver más/Ver menos"
-    document.querySelectorAll(".btn-vermas").forEach(btn => {
-        btn.addEventListener("click", function() {
-            const tarjeta = this.closest(".tarjeta");
-            const descripcion = tarjeta.querySelector(".tarjeta-descripcion");
-            
-            descripcion.classList.toggle("visible");
-            this.textContent = descripcion.classList.contains("visible") ? "Ver menos" : "Ver más";
-        });
-    });
-    
-    // Eventos para botones "Reservar"
-    document.querySelectorAll(".btn-reservar").forEach(btn => {
-        btn.addEventListener("click", function(e) {
-            const id = parseInt(this.dataset.id);
-            const experiencia = experiencias.find(exp => exp.id === id);
-            
-            if (experiencia) {
-                seleccionarExperiencia(experiencia);
-            }
-        });
-    });
-}
-
-/**
- * Selecciona una experiencia para la reserva
- * @param {Object} experiencia - Experiencia seleccionada
- */
-function seleccionarExperiencia(experiencia) {
-    reservaSeleccionada = experiencia;
-    actualizarResumen();
-    
-    // Scroll suave hacia el formulario
-    document.getElementById("experiencia").value = experiencia.id;
-    document.getElementById("reserva").scrollIntoView({ behavior: "smooth" });
-}
-
-/**
- * Actualiza el resumen de reserva en tiempo real
- */
-function actualizarResumen() {
-    const resumenContenido = document.getElementById("resumen-contenido");
-    
-    if (!reservaSeleccionada) {
-        resumenContenido.innerHTML = '<p class="placeholder-resumen">Selecciona una experiencia para ver el resumen</p>';
-        return;
-    }
-    
-    const personas = parseInt(document.getElementById("personas").value) || 1;
-    const precioTotal = reservaSeleccionada.precio * personas;
-    
-    resumenContenido.innerHTML = `
-        <div class="resumen-item">
-            <span class="resumen-label">Experiencia</span>
-            <p class="resumen-valor">${escaparHTML(reservaSeleccionada.nombre)}</p>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Ubicación</span>
-            <p class="resumen-valor">${escaparHTML(reservaSeleccionada.lugar)}</p>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Precio por persona</span>
-            <p class="resumen-valor">$${reservaSeleccionada.precio.toLocaleString('es-CL')}</p>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label">Cantidad de personas</span>
-            <p class="resumen-valor">${personas}</p>
-        </div>
-        <div class="resumen-item">
-            <span class="resumen-label"><strong>Precio total</strong></span>
-            <p class="resumen-valor" style="font-size: 1.2rem; color: #f97316; font-weight: bold;">$${precioTotal.toLocaleString('es-CL')}</p>
-        </div>
-    `;
-}
-
-/* =====================================
-   FUNCIONES: VALIDACIÓN DE FORMULARIO
-   ===================================== */
-
-/**
- * Valida el formulario de reserva
- * @returns {boolean} - True si el formulario es válido
- */
-function validarFormulario() {
-    // Limpiar mensajes de error previos
-    limpiarErrores();
-    
-    const nombre = document.getElementById("nombre").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const experienciaId = document.getElementById("experiencia").value;
-    const personas = parseInt(document.getElementById("personas").value);
-    const fecha = document.getElementById("fecha").value;
-    
-    let esValido = true;
-    
-    // Validar nombre
-    if (!nombre) {
-        mostrarError("nombre", "El nombre completo es obligatorio.");
-        esValido = false;
-    } else if (nombre.length < 3) {
-        mostrarError("nombre", "El nombre debe tener al menos 3 caracteres.");
-        esValido = false;
-    }
-    
-    // Validar email
-    if (!email) {
-        mostrarError("email", "El email es obligatorio.");
-        esValido = false;
-    } else if (!validarFormatoEmail(email)) {
-        mostrarError("email", "Por favor ingresa un email válido.");
-        esValido = false;
-    }
-    
-    // Validar experiencia
-    if (!experienciaId) {
-        mostrarError("experiencia", "Debes seleccionar una experiencia.");
-        esValido = false;
-    }
-    
-    // Validar número de personas
-    if (!personas || personas < 1) {
-        mostrarError("personas", "Ingresa un número válido de personas.");
-        esValido = false;
-    } else if (personas > 20) {
-        mostrarError("personas", "No se pueden reservar más de 20 personas.");
-        esValido = false;
-    } else if (reservaSeleccionada && personas > reservaSeleccionada.cuposDisponibles) {
-        mostrarError("personas", `Solo hay ${reservaSeleccionada.cuposDisponibles} cupos disponibles.`);
-        esValido = false;
-    }
-    
-    // Validar fecha
-    if (!fecha) {
-        mostrarError("fecha", "La fecha es obligatoria.");
-        esValido = false;
-    } else {
-        const fechaSeleccionada = new Date(fecha);
-        const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-        
-        if (fechaSeleccionada < hoy) {
-            mostrarError("fecha", "Selecciona una fecha futura.");
-            esValido = false;
-        }
-    }
-    
-    return esValido;
-}
-
-/**
- * Valida formato de email con regex
- * @param {string} email - Email a validar
- * @returns {boolean} - True si el email es válido
- */
-function validarFormatoEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
-
-/**
- * Muestra un mensaje de error junto a un campo
- * @param {string} campo - ID del campo
- * @param {string} mensaje - Mensaje de error
- */
-function mostrarError(campo, mensaje) {
-    const input = document.getElementById(campo);
-    const errorSpan = document.getElementById(`error-${campo}`);
-    
-    input.classList.add("error");
-    // Usar textContent para evitar XSS
-    errorSpan.textContent = mensaje;
-}
-
-/**
- * Limpia todos los errores del formulario
- */
-function limpiarErrores() {
-    document.querySelectorAll(".error-message").forEach(span => {
-        span.textContent = "";
-    });
-    document.querySelectorAll(".form-group input, .form-group select").forEach(input => {
-        input.classList.remove("error");
-    });
-    document.getElementById("mensaje-error-general").classList.remove("visible");
-}
-
-/* =====================================
-   FUNCIONES: MANEJO DE RESERVAS
-   ===================================== */
-
-/**
- * Descuenta cupos de una experiencia
- * @param {number} experienciaId - ID de la experiencia
- * @param {number} cantidad - Cantidad de cupos a descontar
- */
-function descontarCupo(experienciaId, cantidad) {
-    const experiencia = experiencias.find(exp => exp.id === experienciaId);
-    if (experiencia) {
-        experiencia.cuposDisponibles -= cantidad;
-    }
-}
-
-/**
- * Maneja el envío del formulario de reserva
- * @param {Event} event - Evento del formulario
- */
-function manejarEnvioFormulario(event) {
-    event.preventDefault();
-    
-    // Limpiar mensajes previos
-    document.getElementById("mensaje-exito").classList.remove("visible");
-    document.getElementById("mensaje-exito").textContent = "";
-    
-    // Validar formulario
-    if (!validarFormulario()) {
-        return;
-    }
-    
-    // Obtener datos del formulario
-    const nombre = document.getElementById("nombre").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const experienciaId = parseInt(document.getElementById("experiencia").value);
-    const personas = parseInt(document.getElementById("personas").value);
-    const fecha = document.getElementById("fecha").value;
-    
-    // Descontar cupos
-    descontarCupo(experienciaId, personas);
-    
-    // Actualizar vista de tarjetas
-    renderExperiencias(
-        filtroActual === "todos" 
-            ? experiencias 
-            : experiencias.filter(exp => exp.categoria === filtroActual)
-    );
-    agregarEventosTarjetas();
-    
-    // Mostrar mensaje de éxito
-    const experienciaReservada = experiencias.find(exp => exp.id === experienciaId);
-    const mensajeExito = document.getElementById("mensaje-exito");
-    
-    mensajeExito.innerHTML = `
-        ✅ ¡Reserva confirmada!<br>
-        <strong>${escaparHTML(nombre)}</strong>, tu reserva para 
-        <strong>${escaparHTML(experienciaReservada.nombre)}</strong> 
-        para ${personas} ${personas === 1 ? 'persona' : 'personas'} el 
-        <strong>${new Date(fecha).toLocaleDateString('es-CL')}</strong> 
-        ha sido confirmada. Te enviaremos un email a <strong>${escaparHTML(email)}</strong>
-    `;
-    mensajeExito.classList.add("visible");
-    
-    // Limpiar formulario
-    document.getElementById("formulario-reserva").reset();
-    limpiarErrores();
-    reservaSeleccionada = null;
-    actualizarResumen();
-    
-    // Scroll al mensaje
-    mensajeExito.scrollIntoView({ behavior: "smooth" });
-}
-
-/* =====================================
-   FUNCIONES: INICIALIZACIÓN
-   ===================================== */
-
-/**
- * Llena el select de experiencias con opciones
- */
-function poblarSelectExperiencias() {
+function poblarSelect() {
     const select = document.getElementById("experiencia");
-    
-    experiencias.forEach(experiencia => {
+    experiencias.forEach(exp => {
         const option = document.createElement("option");
-        option.value = experiencia.id;
-        option.textContent = experiencia.nombre;
+        option.value = exp.id;
+        option.textContent = exp.nombre;
         select.appendChild(option);
     });
 }
 
 /**
- * Agrega event listeners a los botones de filtro
+ * Actualiza el resumen de la reserva
  */
-function agregarEventosFiltros() {
-    document.querySelectorAll(".filtro-btn").forEach(btn => {
-        btn.addEventListener("click", function() {
-            // Remover clase activo de todos los botones
-            document.querySelectorAll(".filtro-btn").forEach(b => {
-                b.classList.remove("activo");
-            });
-            
-            // Agregar clase activo al botón clickeado
-            this.classList.add("activo");
-            
-            // Filtrar experiencias
-            const categoria = this.dataset.filtro;
-            filtrarPorCategoria(categoria);
-        });
-    });
+function actualizarResumen(exp, personas) {
+    const resumen = document.getElementById("resumen-contenido");
+    
+    if (!exp) {
+        resumen.innerHTML = '<p class="placeholder-resumen">Selecciona una experiencia para ver el resumen</p>';
+        return;
+    }
+    
+    const total = exp.precio * personas;
+    resumen.innerHTML = `
+        <div class="resumen-item">
+            <span class="resumen-label">Experiencia</span>
+            <p class="resumen-valor">${escaparHTML(exp.nombre)}</p>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Ubicación</span>
+            <p class="resumen-valor">${escaparHTML(exp.lugar)}</p>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Precio por persona</span>
+            <p class="resumen-valor">$${exp.precio.toLocaleString('es-CL')}</p>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Cantidad</span>
+            <p class="resumen-valor">${personas}</p>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label"><strong>Total</strong></span>
+            <p class="resumen-valor" style="font-size: 1.2rem; color: #f97316; font-weight: bold;">$${total.toLocaleString('es-CL')}</p>
+        </div>
+    `;
 }
 
+/* =====================================
+   VALIDADOR DE FORMULARIO
+   ===================================== */
+
+const Validador = {
+    reglas: {
+        nombre: (val) => val.trim().length >= 3 ? null : "El nombre debe tener al menos 3 caracteres",
+        email: (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) ? null : "Email inválido",
+        experiencia: (val) => val ? null : "Debes seleccionar una experiencia",
+        personas: (val, exp) => {
+            if (!val || val < 1) return "Ingresa un número válido";
+            if (val > 20) return "Máximo 20 personas";
+            if (exp && !exp.estaDisponible(val)) return `Solo hay ${exp.cuposDisponibles} cupos`;
+            return null;
+        },
+        fecha: (val) => {
+            if (!val) return "La fecha es obligatoria";
+            const fecha = new Date(val);
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            return fecha >= hoy ? null : "Selecciona una fecha futura";
+        }
+    },
+
+    validar(datos) {
+        const errores = {};
+        
+        if (this.reglas.nombre(datos.nombre)) 
+            errores.nombre = this.reglas.nombre(datos.nombre);
+        
+        if (this.reglas.email(datos.email)) 
+            errores.email = this.reglas.email(datos.email);
+        
+        if (this.reglas.experiencia(datos.experiencia)) 
+            errores.experiencia = this.reglas.experiencia(datos.experiencia);
+        
+        if (this.reglas.personas(datos.personas, datos.exp)) 
+            errores.personas = this.reglas.personas(datos.personas, datos.exp);
+        
+        if (this.reglas.fecha(datos.fecha)) 
+            errores.fecha = this.reglas.fecha(datos.fecha);
+        
+        return errores;
+    }
+};
+
 /**
- * Agrega event listeners al formulario y campos
+ * Muestra/limpia errores en el formulario
  */
-function agregarEventosFormulario() {
-    // Evento del formulario
-    document.getElementById("formulario-reserva").addEventListener("submit", manejarEnvioFormulario);
+function mostrarErrores(errores) {
+    document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
+    document.querySelectorAll("input, select").forEach(el => el.classList.remove("error"));
     
-    // Evento para actualizar resumen cuando cambia personas o experiencia
-    document.getElementById("personas").addEventListener("change", actualizarResumen);
-    document.getElementById("experiencia").addEventListener("change", function() {
-        const id = parseInt(this.value);
-        if (id) {
-            reservaSeleccionada = experiencias.find(exp => exp.id === id);
-            actualizarResumen();
+    Object.entries(errores).forEach(([campo, mensaje]) => {
+        const input = document.getElementById(campo);
+        const span = document.getElementById(`error-${campo}`);
+        if (input && span) {
+            input.classList.add("error");
+            span.textContent = mensaje;
         }
     });
 }
 
-/**
- * Inicializa la aplicación
- */
-function inicializar() {
-    // Renderizar experiencias iniciales
-    renderExperiencias(experiencias);
-    
-    // Agregar eventos a tarjetas
-    agregarEventosTarjetas();
-    
-    // Agregar eventos a filtros
-    agregarEventosFiltros();
-    
-    // Poblar select de experiencias
-    poblarSelectExperiencias();
-    
-    // Agregar eventos al formulario
-    agregarEventosFormulario();
-    
-    console.log("✅ Aplicación inicializada correctamente");
-}
-
 /* =====================================
-   EJECUTAR AL CARGAR LA PÁGINA
+   MANEJO DE EVENTOS (DELEGACIÓN)
    ===================================== */
 
-// Esperar a que el DOM esté listo
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", inicializar);
-} else {
-    // Si el script se carga después
-    inicializar();
-}
+/**
+ * Delegación de eventos para tarjetas
+ */
+document.addEventListener("click", (e) => {
+    const id = parseInt(e.target.dataset.id);
+    
+    if (e.target.classList.contains("btn-vermas")) {
+        const desc = e.target.closest(".tarjeta").querySelector(".tarjeta-descripcion");
+        desc.classList.toggle("visible");
+        e.target.textContent = desc.classList.contains("visible") ? "Ver menos" : "Ver más";
+    }
+    
+    if (e.target.classList.contains("btn-reservar")) {
+        const exp = obtenerExperiencia(id);
+        if (exp) {
+            document.getElementById("experiencia").value = exp.id;
+            actualizarResumen(exp, 1);
+            document.getElementById("reserva").scrollIntoView({ behavior: "smooth" });
+        }
+    }
+    
+    if (e.target.classList.contains("filtro-btn")) {
+        document.querySelectorAll(".filtro-btn").forEach(btn => btn.classList.remove("activo"));
+        e.target.classList.add("activo");
+        const categoria = e.target.dataset.filtro;
+        renderExperiencias(filtrarExperiencias(categoria));
+    }
+});
+
+/* =====================================
+   EVENTOS DEL FORMULARIO
+   ===================================== */
+
+const formulario = document.getElementById("formulario-reserva");
+
+formulario.addEventListener("submit", (e) => {
+    e.preventDefault();
+    
+    const datos = {
+        nombre: document.getElementById("nombre").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        experiencia: parseInt(document.getElementById("experiencia").value),
+        personas: parseInt(document.getElementById("personas").value),
+        fecha: document.getElementById("fecha").value,
+        exp: obtenerExperiencia(parseInt(document.getElementById("experiencia").value))
+    };
+    
+    const errores = Validador.validar(datos);
+    
+    if (Object.keys(errores).length > 0) {
+        mostrarErrores(errores);
+        return;
+    }
+    
+    // Procesar reserva exitosa
+    datos.exp.descontarCupo(datos.personas);
+    renderExperiencias(filtrarExperiencias("todos"));
+    
+    const msg = document.getElementById("mensaje-exito");
+    msg.innerHTML = `
+        ✅ ¡Reserva confirmada!<br>
+        <strong>${escaparHTML(datos.nombre)}</strong>, tu reserva para 
+        <strong>${escaparHTML(datos.exp.nombre)}</strong> 
+        para ${datos.personas} ${datos.personas === 1 ? 'persona' : 'personas'} el 
+        <strong>${new Date(datos.fecha).toLocaleDateString('es-CL')}</strong> 
+        ha sido confirmada. Te enviaremos un email a <strong>${escaparHTML(datos.email)}</strong>
+    `;
+    msg.classList.add("visible");
+    
+    formulario.reset();
+    mostrarErrores({});
+    actualizarResumen(null, 1);
+    msg.scrollIntoView({ behavior: "smooth" });
+});
+
+// Eventos de actualización en tiempo real
+document.getElementById("personas").addEventListener("change", () => {
+    const exp = obtenerExperiencia(parseInt(document.getElementById("experiencia").value));
+    const personas = parseInt(document.getElementById("personas").value) || 1;
+    actualizarResumen(exp, personas);
+});
+
+document.getElementById("experiencia").addEventListener("change", () => {
+    const exp = obtenerExperiencia(parseInt(document.getElementById("experiencia").value));
+    actualizarResumen(exp, parseInt(document.getElementById("personas").value) || 1);
+});
+
+/* =====================================
+   INICIALIZACIÓN
+   ===================================== */
+
+window.addEventListener("DOMContentLoaded", () => {
+    renderExperiencias(experiencias);
+    poblarSelect();
+    console.log("✅ Aplicación inicializada");
+});
